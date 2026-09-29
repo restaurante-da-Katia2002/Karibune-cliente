@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karibune - Encomendas de Comida</title>
+    <style>
+        :root {
+            --primary-color: #d9534f;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 15px 10px;
+            position: relative;
+        }
+
+        header h1 { margin: 0; font-size: 26px; }
+        header p { margin: 5px 0 0; font-size: 14px; }
+
+        .user-bar {
+            background-color: #c9302c;
+            color: white;
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .user-bar button {
+            background: white;
+            color: var(--primary-color);
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 15px auto;
+            padding: 0 15px 30px;
+        }
+
+        .main-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section-title {
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 5px;
+            color: var(--primary-color);
+            margin-top: 15px;
+        }
+
+        .subtitle-note {
+            font-size: 13px;
+            color: #666;
+            margin-top: -5px;
+            margin-bottom: 10px;
+        }
+
+        .grid-selection {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .option-card {
+            background: var(--card-bg);
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .option-card img {
+            width: 100%;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .option-card p {
+            margin: 8px 0 0;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .option-card.selected {
+            border-color: var(--primary-color);
+            background-color: #fff0f0;
+            box-shadow: 0 0 8px rgba(217, 83, 79, 0.4);
+        }
+
+        .option-card .check-badge {
+            display: none;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 14px;
+            line-height: 22px;
+            text-align: center;
+        }
+
+        .option-card.selected .check-badge { display: block; }
+
+        .drink-card {
+            background: #ffffff;
+            border: 2px solid #0275d8;
+            border-radius: 8px;
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .drink-card:hover { background-color: #f0f8ff; }
+
+        .house-sides-info {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #495057;
+            margin-top: 10px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .add-btn {
+            background-color: #0275d8;
+            color: white;
+            border: none;
+            padding: 14px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            margin-top: 15px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .cart-box, form {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-top: 15px;
+        }
+
+        .dish-card-item {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-left: 5px solid var(--primary-color);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .dish-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed #e0e0e0;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+        }
+
+        .dish-card-title {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 15px;
+        }
+
+        .btn-remove-dish {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .cart-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 15px;
+            padding-top: 10px;
+            border-top: 2px solid #eee;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .total-row {
+            font-size: 18px;
+            color: var(--primary-color);
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1px dashed #ccc;
+        }
+
+        .btn-clear-all {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .empty-msg {
+            text-align: center;
+            color: #777;
+            font-size: 14px;
+            padding: 15px;
+            border: 1px dashed #ccc;
+            border-radius: 6px;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-family: inherit; }
+        .form-group input[readonly] { background-color: #e9ecef; cursor: not-allowed; }
+
+        .gps-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .gps-info-box {
+            background-color: #e8f4ea;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #155724;
+        }
+
+        .payment-box {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .pay-option { background: #ffffff; padding: 10px; border-radius: 6px; border: 1px solid #e0e0e0; margin-bottom: 10px; }
+        .copy-row { display: flex; align-items: center; }
+        .copy-row input { flex: 1; padding: 8px; margin-right: 5px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; }
+        .copy-btn { background-color: var(--primary-color); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+
+        /* Modais */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 450px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .modal-tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .history-card {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .history-card-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+
+        @media (min-width: 600px) and (max-width: 991px) {
+            .grid-selection { grid-template-columns: repeat(3, 1fr); }
+            .option-card img { height: 130px; }
+        }
+
+        @media (min-width: 992px) {
+            .main-layout { flex-direction: row; align-items: flex-start; }
+            .menu-section { flex: 1.4; }
+            .checkout-section { flex: 1; position: sticky; top: 20px; }
+            .grid-selection { grid-template-columns: repeat(3, 1fr); }
+            .option-card img { height: 140px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Karibune</h1>
+        <p>Sabor e Qualidade ao seu Alcance</p>
+    </header>
+
+    <div class="user-bar" id="userBar">
+        <span id="userInfoText">Seja bem-vindo! Faça login para encomendar.</span>
+        <div>
+            <button type="button" id="historyBtn" onclick="openHistoryModal()" style="display:none; margin-right:5px; background:#0275d8; color:white;">📋 Meus Pedidos</button>
+            <button type="button" id="authBtn" onclick="openAuthModal()">Entrar / Cadastrar</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="main-layout">
+            
+            <div class="menu-section">
+                <h2 class="section-title" style="margin-top:0;">1. Escolha o Arroz</h2>
+                <p class="subtitle-note">Pode selecionar diferentes tipos de arroz. Não é possível repetir o mesmo tipo.</p>
+                <div class="grid-selection" id="riceGrid"></div>
+
+                <h2 class="section-title">2. Escolha o Acompanhamento Principal</h2>
+                <div class="grid-selection" id="sideGrid"></div>
+
+                <div class="house-sides-info">
+                    💡 <strong>Acompanhamentos da Casa Incluídos:</strong> Todos os pratos já acompanham com <strong>Matapa, Feijão e Salada</strong>.
+                </div>
+
+                <button type="button" class="add-btn" onclick="addToCart()">+ Adicionar Prato ao Pedido</button>
+
+                <h2 class="section-title">3. Bebidas / Água</h2>
+                <div class="grid-selection" id="drinkGrid"></div>
+            </div>
+
+            <div class="checkout-section">
+                <h2 class="section-title" style="margin-top:0;">4. Meus Pedidos</h2>
+                <div class="cart-box">
+                    <div id="cartItemsList">
+                        <div class="empty-msg">Nenhum item adicionado ainda.</div>
+                    </div>
+                    
+                    <div class="cart-summary" id="cartSummary" style="display:none;">
+                        <div class="summary-row">
+                            <span>Subtotal (Itens):</span>
+                            <span><span id="subtotalPrice">0</span> MT</span>
+                        </div>
+                        <div class="summary-row" style="color: #28a745;">
+                            <span>Transporte (GPS):</span>
+                            <span><span id="deliveryFeeText">0</span> MT</span>
+                        </div>
+                        <div class="summary-row total-row">
+                            <span>Total Geral:</span>
+                            <span><span id="totalPrice">0</span> MT</span>
+                        </div>
+                        <button type="button" class="btn-clear-all" onclick="clearCart()">Limpar Todos</button>
+                    </div>
+                </div>
+
+                <form id="orderForm">
+                    <h2 class="section-title" style="margin-top:0;">5. Dados de Entrega</h2>
+
+                    <div class="form-group">
+                        <label>Seu Nome:</label>
+                        <input type="text" id="clientName" required placeholder="Insira seu nome completo">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contacto Telefónico:</label>
+                        <input type="tel" id="clientPhone" required placeholder="Ex: 841234567">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Localização Obrigatória via GPS:</label>
+                        <button type="button" class="gps-btn" onclick="getGPSLocation()">🎯 Capturar Localização para Entrega</button>
+                        <input type="hidden" id="gpsCoords">
+                        <input type="hidden" id="clientNeighborhood">
+                        
+                        <div class="gps-info-box" id="gpsInfoDisplay" style="display:none;">
+                            <strong>📍 Bairro Identificado:</strong> <span id="detectedNeighborhoodText">-</span><br>
+                            <strong>🚚 Taxa de Entrega:</strong> <span id="detectedFeeText">0</span> MT
+                        </div>
+                        <p id="gpsStatus" style="font-size:12px; margin-top:5px; color:#d9534f; font-weight:bold;">⚠️ Ative o GPS para definir o Bairro e a Taxa de Entrega.</p>
+                    </div>
+
+                    <div class="payment-box">
+                        <h4 style="margin-top:0; color:#856404;">Pagamento (M-Pesa / e-Mola)</h4>
+                        
+                        <div class="pay-option">
+                            <strong style="color: #d9534f;">M-Pesa (Vodacom)</strong><br>
+                            <small style="color: #555;">Nome: UN.....AB.....</small>
+                            <div class="copy-row" style="margin-top: 4px;">
+                                <input type="text" value="848556678" id="mpesaNumber" readonly>
+                                <button type="button" class="copy-btn" onclick="copyText('mpesaNumber')">Copiar</button>
+                            </div>
+                        </div>
+
+                        <div class="pay-option">
+                            <strong style="color: #ff8c00;">e-Mola (Movitel)</strong><br>
+                            <small style="color: #555;">Nome: AT.....SU</small>
+                            <div class="copy-row" style="margin-top: 4px;">
+                                <input type="text" value="860256090" id="emolaNumber" readonly>
+                                <button type="button" class="copy-btn" onclick="copyText('emolaNumber')">Copiar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Enviar Pedido via WhatsApp</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modal Autenticação -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-box">
+            <div class="modal-tabs">
+                <button type="button" class="tab-btn active" id="tabLoginBtn" onclick="switchTab('login')">Entrar</button>
+                <button type="button" class="tab-btn" id="tabRegisterBtn" onclick="switchTab('register')">Cadastrar</button>
+            </div>
+
+            <form id="loginForm" style="box-shadow:none; padding:0; margin:0;">
+                <div class="form-group">
+                    <label>Número de Telemóvel:</label>
+                    <input type="tel" id="loginPhone" required placeholder="Ex: 841234567">
+                </div>
+                <div class="form-group">
+                    <label>Palavra-passe:</label>
+                    <input type="password" id="loginPassword" required placeholder="Sua palavra-passe">
+                </div>
+                <button type="submit" class="submit-btn" style="margin-top:5px;">Entrar</button>
+            </form>
+
+            <form id="registerForm" style="box-shadow:none; padding:0; margin:0; display:none;">
+                <div class="form-group">
+                    <label>Nome Completo:</label>
+                    <input type="text" id="regName" required placeholder="Seu nome">
+                </div>
+                <div class="form-group">
+                    <label>Número de Telemóvel:</label>
+                    <input type="tel" id="regPhone" required placeholder="Ex: 841234567">
+                </div>
+                <div class="form-group">
+                    <label>Palavra-passe:</label>
+                    <input type="password" id="regPassword" required placeholder="Mínimo 6 caracteres">
+                </div>
+                <div class="form-group">
+                    <label>Confirmar Palavra-passe:</label>
+                    <input type="password" id="regPasswordConfirm" required placeholder="Repita a palavra-passe">
+                </div>
+                <button type="submit" class="submit-btn" style="margin-top:5px;">Criar Conta</button>
+            </form>
+
+            <button type="button" onclick="closeAuthModal()" style="background:none; border:none; color:#777; width:100%; margin-top:10px; cursor:pointer;">Fechar</button>
+        </div>
+    </div>
+
+    <!-- Modal Histórico de Pedidos -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-box">
+            <h3 style="color:var(--primary-color); margin-top:0; border-bottom:2px solid var(--primary-color); padding-bottom:5px;">📋 Meu Histórico de Pedidos</h3>
+            <div id="historyListContainer">
+                <div class="empty-msg">A carregar pedidos...</div>
+            </div>
+            <button type="button" onclick="closeHistoryModal()" style="background:#6c757d; color:white; border:none; padding:10px; border-radius:5px; width:100%; margin-top:15px; font-weight:bold; cursor:pointer;">Fechar</button>
+        </div>
+    </div>
+
+    <!-- Firebase Code -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set, get, child, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAshytckwi2IZZKpygdYZNNYH3yPz3Tixg",
+          authDomain: "restaurante-karibune.firebaseapp.com",
+          databaseURL: "https://restaurante-karibune-default-rtdb.firebaseio.com",
+          projectId: "restaurante-karibune",
+          storageBucket: "restaurante-karibune.firebasestorage.app",
+          messagingSenderId: "355223804406",
+          appId: "1:355223804406:web:6b32a5ac4e7cff192c8fd7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        window.currentUser = JSON.parse(localStorage.getItem('karibune_user')) || null;
+
+        function updateUIUser() {
+            const clientNameInput = document.getElementById('clientName');
+            const clientPhoneInput = document.getElementById('clientPhone');
+
+            if (window.currentUser) {
+                document.getElementById('userInfoText').innerText = `Olá, ${window.currentUser.name}`;
+                document.getElementById('historyBtn').style.display = 'inline-block';
+                document.getElementById('authBtn').innerText = 'Sair';
+                document.getElementById('authBtn').onclick = logoutUser;
+                
+                clientNameInput.value = window.currentUser.name;
+                clientPhoneInput.value = window.currentUser.phone;
+                clientNameInput.setAttribute('readonly', 'true');
+                clientPhoneInput.setAttribute('readonly', 'true');
+            } else {
+                document.getElementById('userInfoText').innerText = 'Seja bem-vindo! Faça login para encomendar.';
+                document.getElementById('historyBtn').style.display = 'none';
+                document.getElementById('authBtn').innerText = 'Entrar / Cadastrar';
+                document.getElementById('authBtn').onclick = window.openAuthModal;
+                
+                clientNameInput.value = '';
+                clientPhoneInput.value = '';
+                clientNameInput.removeAttribute('readonly');
+                clientPhoneInput.removeAttribute('readonly');
+            }
+        }
+
+        window.logoutUser = function() {
+            localStorage.removeItem('karibune_user');
+            window.currentUser = null;
+            updateUIUser();
+            alert("Sessão terminada.");
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const pass = document.getElementById('regPassword').value;
+            const passConfirm = document.getElementById('regPasswordConfirm').value;
+
+            if (pass !== passConfirm) {
+                alert("As palavras-passe não coincidem.");
+                return;
+            }
+
+            if (pass.length < 6) {
+                alert("A palavra-passe deve ter pelo menos 6 caracteres.");
+                return;
+            }
+
+            const dbRef = ref(db);
+            const snapshot = await get(child(dbRef, `users/${phone}`));
+
+            if (snapshot.exists()) {
+                alert("Este número de telemóvel já está registado! Faça login.");
+                window.switchTab('login');
+                return;
+            }
+
+            await set(ref(db, 'users/' + phone), { name, phone, password: pass });
+
+            window.currentUser = { name, phone };
+            localStorage.setItem('karibune_user', JSON.stringify(window.currentUser));
+            updateUIUser();
+            window.closeAuthModal();
+            alert("Conta criada com sucesso!");
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const phone = document.getElementById('loginPhone').value.trim();
+            const pass = document.getElementById('loginPassword').value;
+
+            const lockData = JSON.parse(localStorage.getItem(`lock_${phone}`)) || { attempts: 0, lockUntil: 0, waitMinutes: 5 };
+            const now = Date.now();
+
+            if (now < lockData.lockUntil) {
+                const remainingSecs = Math.ceil((lockData.lockUntil - now) / 1000);
+                const mins = Math.floor(remainingSecs / 60);
+                const secs = remainingSecs % 60;
+                alert(`Muitas tentativas incorretas! Por favor, aguarde ${mins}m ${secs}s.`);
+                return;
+            }
+
+            const dbRef = ref(db);
+            const snapshot = await get(child(dbRef, `users/${phone}`));
+
+            if (!snapshot.exists()) {
+                alert("Número de telemóvel não encontrado. Faça o cadastro.");
+                return;
+            }
+
+            const userData = snapshot.val();
+
+            if (userData.password !== pass) {
+                lockData.attempts += 1;
+                if (lockData.attempts >= 4) {
+                    lockData.lockUntil = Date.now() + (lockData.waitMinutes * 60 * 1000);
+                    alert(`Excedeu o limite de tentativas! Bloqueado por ${lockData.waitMinutes} minutos.`);
+                    lockData.waitMinutes *= 2;
+                    lockData.attempts = 0;
+                } else {
+                    alert(`Palavra-passe incorreta! Restam ${4 - lockData.attempts} tentativa(s).`);
+                }
+                localStorage.setItem(`lock_${phone}`, JSON.stringify(lockData));
+                return;
+            }
+
+            localStorage.removeItem(`lock_${phone}`);
+            window.currentUser = { name: userData.name, phone: userData.phone };
+            localStorage.setItem('karibune_user', JSON.stringify(window.currentUser));
+            updateUIUser();
+            window.closeAuthModal();
+            alert("Login efetuado com sucesso!");
+        });
+
+        window.saveAndSendOrder = async function(orderData) {
+            const globalOrdersRef = ref(db, 'all_orders');
+            await set(push(globalOrdersRef), orderData);
+
+            if (window.currentUser) {
+                const userOrdersRef = ref(db, `user_orders/${window.currentUser.phone}`);
+                await set(push(userOrdersRef), orderData);
+            }
+        };
+
+        window.openHistoryModal = function() {
+            if (!window.currentUser) return;
+            document.getElementById('historyModal').style.display = 'flex';
+            const container = document.getElementById('historyListContainer');
+            container.innerHTML = '<div class="empty-msg">A carregar os seus pedidos...</div>';
+
+            onValue(ref(db, `user_orders/${window.currentUser.phone}`), (snapshot) => {
+                const data = snapshot.val();
+                container.innerHTML = '';
+                if (!data) {
+                    container.innerHTML = '<div class="empty-msg">Ainda não realizou nenhuma encomenda.</div>';
+                    return;
+                }
+
+                const keys = Object.keys(data).reverse();
+                keys.forEach(key => {
+                    const order = data[key];
+                    let itemsHtml = '';
+                    order.items.forEach(it => {
+                        itemsHtml += `<div>• ${it.name} (${it.price} MT)</div>`;
+                    });
+
+                    container.innerHTML += `
+                        <div class="history-card">
+                            <div class="history-card-header">
+                                <span>📅 ${order.date}</span>
+                                <span>${order.total} MT</span>
+                            </div>
+                            <div style="margin:5px 0;">${itemsHtml}</div>
+                            <div style="color:#28a745; font-size:11px;"><strong>Bairro:</strong> ${order.neighborhood} | <strong>Status:</strong> ${order.status || 'Enviado'}</div>
+                        </div>
+                    `;
+                });
+            }, { onlyOnce: true });
+        };
+
+        updateUIUser();
+
+        onValue(ref(db, 'riceOptions'), (snapshot) => {
+            const data = snapshot.val();
+            const riceGrid = document.getElementById('riceGrid');
+            riceGrid.innerHTML = '';
+            if (!data) return;
+            Object.keys(data).forEach(key => {
+                const item = data[key];
+                const imgPath = item.image ? item.image : `./${item.name.toLowerCase().replace(/\s+/g, '_')}.jpg`;
+                riceGrid.innerHTML += `
+                    <div class="option-card" onclick="toggleRice('${item.name}', this)">
+                        <div class="check-badge">✓</div>
+                        <img src="${imgPath}" alt="${item.name}" onerror="this.src='./default.jpg'">
+                        <p>${item.name}</p>
+                    </div>
+                `;
+            });
+        });
+
+        onValue(ref(db, 'dishOptions'), (snapshot) => {
+            const data = snapshot.val();
+            const sideGrid = document.getElementById('sideGrid');
+            sideGrid.innerHTML = '';
+            if (!data) return;
+            Object.keys(data).forEach(key => {
+                const item = data[key];
+                const imgPath = item.image ? item.image : `./${item.name.toLowerCase().replace(/\s+/g, '_')}.jpg`;
+                sideGrid.innerHTML += `
+                    <div class="option-card" onclick="selectSide('${item.name}', ${item.price}, this)">
+                        <img src="${imgPath}" alt="${item.name}" onerror="this.src='./default.jpg'">
+                        <p>${item.name}<br><small>${item.price} MT</small></p>
+                    </div>
+                `;
+            });
+        });
+
+        onValue(ref(db, 'drinkOptions'), (snapshot) => {
+            const data = snapshot.val();
+            const drinkGrid = document.getElementById('drinkGrid');
+            drinkGrid.innerHTML = '';
+            if (!data) return;
+            Object.keys(data).forEach(key => {
+                const item = data[key];
+                drinkGrid.innerHTML += `
+                    <div class="drink-card" onclick="addDrinkToCart('${item.name}', ${item.price})">
+                        <strong style="color:#0275d8; font-size:15px;">🥤 ${item.name}</strong><br>
+                        <span style="font-weight:bold; font-size:14px;">${item.price} MT</span><br>
+                        <small style="color:#28a745; font-weight:bold;">+ Clique para Adicionar</small>
+                    </div>
+                `;
+            });
+        });
+    </script>
+
+    <script>
+        let selectedRiceArray = [];
+        let selectedSide = null;
+        let selectedPrice = 0;
+        let cart = [];
+
+        const zones = [
+            { name: "Expansão / Centro", fee: 50, polygon: [[-12.9548395, 40.4947393], [-12.9511909, 40.4982431], [-12.9511365, 40.5009494], [-12.9503346, 40.5042120], [-12.9518868, 40.5066355], [-12.9688363, 40.4975909], [-12.9658865, 40.4825305], [-12.9636443, 40.4809935], [-12.9626121, 40.4821730], [-12.9610162, 40.4834178], [-12.9598175, 40.4851476], [-12.9595973, 40.4869492], [-12.9582437, 40.4875667], [-12.9573730, 40.4884340], [-12.9570794, 40.4897041], [-12.9562697, 40.4914242], [-12.9558865, 40.4937207], [-12.9554640, 40.4942769]] },
+            { name: "Cariacó / Paquitequete", fee: 100, polygon: [[-12.9688551, 40.4976409], [-12.9739498, 40.5029822], [-12.9757102, 40.5062341], [-12.9790446, 40.5087118], [-12.9674202, 40.5120717], [-12.9636139, 40.5126892], [-12.9623962, 40.5138641], [-12.9610244, 40.5158299], [-12.9605081, 40.5167220], [-12.9596570, 40.5170792], [-12.9549106, 40.5124774], [-12.9533861, 40.5095481], [-12.9519701, 40.5067649]] },
+            { name: "Natite / Wimbe", fee: 150, polygon: [[-12.9803404, 40.5094833], [-12.9820491, 40.5115993], [-12.9843049, 40.5126778], [-12.9641307, 40.5315583], [-12.9598009, 40.5176014], [-12.9611648, 40.5157651], [-12.9636535, 40.5127418], [-12.9674170, 40.5121265], [-12.9790625, 40.5087118]] },
+            { name: "Chuiba / Eduardo Mondlane", fee: 200, polygon: [[-12.9843615, 40.5127369], [-12.9935708, 40.5146398], [-12.9892879, 40.5288095], [-12.9853116, 40.5389726], [-12.9847381, 40.5401417], [-12.9831247, 40.5431469], [-12.9800206, 40.5466570], [-12.9764749, 40.5495217], [-12.9694061, 40.5511381], [-12.9687877, 40.5360358], [-12.9641998, 40.5316349]] },
+            { name: "Periferia / Outro", fee: 300, polygon: [[-12.9941645, 40.514958], [-13.0328459, 40.5057601], [-13.0431886, 40.5621123], [-12.9712497, 40.5883537], [-12.9598407, 40.5775319], [-12.9612782, 40.5653769], [-12.9671174, 40.5519080], [-12.9758098, 40.5503554], [-12.9835858, 40.5449231]] }
+        ];
+
+        let deliveryFee = 0;
+
+        function openAuthModal() { document.getElementById('authModal').style.display = 'flex'; }
+        function closeAuthModal() { document.getElementById('authModal').style.display = 'none'; }
+        function closeHistoryModal() { document.getElementById('historyModal').style.display = 'none'; }
+
+        function switchTab(tab) {
+            if (tab === 'login') {
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('registerForm').style.display = 'none';
+                document.getElementById('tabLoginBtn').classList.add('active');
+                document.getElementById('tabRegisterBtn').classList.remove('active');
+            } else {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'block';
+                document.getElementById('tabRegisterBtn').classList.add('active');
+                document.getElementById('tabLoginBtn').classList.remove('active');
+            }
+        }
+
+        function isPointInPolygon(lat, lng, polygon) {
+            let x = lat, y = lng, inside = false;
+            for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+                let xi = polygon[i][0], yi = polygon[i][1];
+                let xj = polygon[j][0], yj = polygon[j][1];
+                let intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+            }
+            return inside;
+        }
+
+        function toggleRice(riceName, element) {
+            const index = selectedRiceArray.indexOf(riceName);
+            if (index > -1) {
+                selectedRiceArray.splice(index, 1);
+                element.classList.remove('selected');
+            } else {
+                selectedRiceArray.push(riceName);
+                element.classList.add('selected');
+            }
+        }
+
+        function selectSide(sideName, price, element) {
+            if (selectedSide === sideName) {
+                alert(`O acompanhamento "${sideName}" já está selecionado!`);
+                return;
+            }
+            selectedSide = sideName;
+            selectedPrice = price;
+            document.querySelectorAll('#sideGrid .option-card').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        function addToCart() {
+            if (selectedRiceArray.length === 0) {
+                alert("Por favor, selecione pelo menos um tipo de Arroz.");
+                return;
+            }
+            if (!selectedSide) {
+                alert("Por favor, selecione um Acompanhamento Principal.");
+                return;
+            }
+
+            selectedRiceArray.forEach(singleRice => {
+                cart.push({
+                    type: 'dish',
+                    name: `${singleRice} com ${selectedSide}`,
+                    houseSides: "Matapa, Feijão e Salada",
+                    price: Number(selectedPrice)
+                });
+            });
+
+            selectedRiceArray = [];
+            selectedSide = null;
+            selectedPrice = 0;
+            document.querySelectorAll('#riceGrid .option-card, #sideGrid .option-card').forEach(c => c.classList.remove('selected'));
+            renderCart();
+        }
+
+        function addDrinkToCart(drinkName, price) {
+            cart.push({
+                type: 'drink',
+                name: drinkName,
+                price: Number(price)
+            });
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItemsList');
+            const summary = document.getElementById('cartSummary');
+            if (cart.length === 0) {
+                container.innerHTML = `<div class="empty-msg">Nenhum item adicionado ainda.</div>`;
+                summary.style.display = 'none';
+                return;
+            }
+
+            container.innerHTML = '';
+            let subtotal = 0;
+
+            cart.forEach((item, index) => {
+                subtotal += item.price;
+                if (item.type === 'dish') {
+                    container.innerHTML += `
+                        <div class="dish-card-item">
+                            <div class="dish-card-header">
+                                <span class="dish-card-title">${item.name}</span>
+                                <button type="button" class="btn-remove-dish" onclick="removeFromCart(${index})">Remover</button>
+                            </div>
+                            <div><small style="color:#555;">Inclui: ${item.houseSides}</small></div>
+                            <div><small><strong>Preço:</strong> ${item.price} MT</small></div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML += `
+                        <div class="dish-card-item" style="border-left-color: #0275d8;">
+                            <div class="dish-card-header">
+                                <span class="dish-card-title" style="color:#0275d8;">🥤 ${item.name}</span>
+                                <button type="button" class="btn-remove-dish" onclick="removeFromCart(${index})">Remover</button>
+                            </div>
+                            <div><small><strong>Preço:</strong> ${item.price} MT</small></div>
+                        </div>
+                    `;
+                }
+            });
+
+            document.getElementById('subtotalPrice').innerText = subtotal;
+            document.getElementById('deliveryFeeText').innerText = deliveryFee;
+            document.getElementById('totalPrice').innerText = subtotal + deliveryFee;
+            summary.style.display = 'flex';
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            renderCart();
+        }
+
+        function clearCart() {
+            if (confirm("Deseja remover todos os itens?")) {
+                cart = [];
+                deliveryFee = 0;
+                document.getElementById('gpsStatus').innerText = '⚠️ Ative o GPS para definir o Bairro e a Taxa de Entrega.';
+                document.getElementById('gpsStatus').style.color = '#d9534f';
+                document.getElementById('gpsCoords').value = '';
+                document.getElementById('clientNeighborhood').value = '';
+                document.getElementById('gpsInfoDisplay').style.display = 'none';
+                renderCart();
+            }
+        }
+
+        function copyText(elementId) {
+            const input = document.getElementById(elementId);
+            input.select();
+            document.execCommand('copy');
+            alert('Número copiado: ' + input.value);
+        }
+
+        function getGPSLocation() {
+            const status = document.getElementById('gpsStatus');
+            const infoDisplay = document.getElementById('gpsInfoDisplay');
+
+            if (navigator.geolocation) {
+                status.innerText = "📍 A obter localização exata via GPS (aguarde um momento)...";
+                status.style.color = "#0275d8";
+                
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        const lat = pos.coords.latitude;
+                        const lng = pos.coords.longitude;
+                        const accuracy = Math.round(pos.coords.accuracy);
+
+                        document.getElementById('gpsCoords').value = `https://www.google.com/maps?q=${lat},${lng}`;
+
+                        let foundZone = null;
+                        for (let z of zones) {
+                            if (isPointInPolygon(lat, lng, z.polygon)) {
+                                foundZone = z;
+                                break;
+                            }
+                        }
+
+                        if (foundZone) {
+                            deliveryFee = foundZone.fee;
+                            document.getElementById('clientNeighborhood').value = foundZone.name;
+                            document.getElementById('detectedNeighborhoodText').innerText = foundZone.name;
+                            document.getElementById('detectedFeeText').innerText = foundZone.fee;
+                            
+                            status.innerText = `✅ Localização Exata Obtida! (Precisão: ~${accuracy}m)`;
+                            status.style.color = "#28a745";
+                        } else {
+                            deliveryFee = 150;
+                            document.getElementById('clientNeighborhood').value = "Fora da Zona Padrão";
+                            document.getElementById('detectedNeighborhoodText').innerText = "Fora da Zona Padrão";
+                            document.getElementById('detectedFeeText').innerText = "150";
+
+                            status.innerText = `✅ Localização Obtida! (Fora do perímetro padrão - Precisão: ~${accuracy}m)`;
+                            status.style.color = "#28a745";
+                        }
+                        
+                        infoDisplay.style.display = 'block';
+                        renderCart();
+                    },
+                    err => {
+                        status.innerText = "❌ Erro ao obter GPS. Por favor, ative a Localização/GPS no seu telemóvel para continuar.";
+                        status.style.color = "#d9534f";
+                        infoDisplay.style.display = 'none';
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            } else { 
+                status.innerText = "Geolocalização não é suportada pelo seu navegador."; 
+            }
+        }
+
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!window.currentUser) {
+                alert("Por favor, faça login ou crie uma conta para poder enviar a sua encomenda.");
+                openAuthModal();
+                return;
+            }
+
+            if (cart.length === 0) {
+                alert("Sua lista está vazia! Adicione comida ou bebida antes de enviar.");
+                return;
+            }
+
+            const name = document.getElementById('clientName').value;
+            const phone = document.getElementById('clientPhone').value;
+            const neighborhood = document.getElementById('clientNeighborhood').value;
+            const gps = document.getElementById('gpsCoords').value;
+
+            if (!gps || !neighborhood) {
+                alert("O uso do GPS é obrigatório para identificar o seu Bairro e calcular a entrega. Clique no botão 'Capturar Localização para Entrega'.");
+                return;
+            }
+
+            let subtotal = 0;
+            let msg = `Olá Karibune! Tenho um pedido do site.\n\n`;
+            msg += `*Nome:* ${name}\n`;
+            msg += `*Contacto:* ${phone}\n`;
+            msg += `*Bairro (Identificado pelo GPS):* ${neighborhood}\n\n`;
+
+            msg += `*ITENS DO PEDIDO:*\n`;
+            cart.forEach((item) => {
+                subtotal += item.price;
+                if (item.type === 'dish') {
+                    msg += `• ${item.name} (${item.price} MT)\n  _Inclui: Matapa, Feijão e Salada_\n`;
+                } else {
+                    msg += `• 🥤 ${item.name} (${item.price} MT)\n`;
+                }
+            });
+
+            const totalFinal = subtotal + deliveryFee;
+
+            msg += `\n*SUBTOTAL ITENS:* ${subtotal} MT\n`;
+            msg += `*TAXA DE TRANSPORTE:* ${deliveryFee} MT\n`;
+            msg += `*TOTAL GERAL A PAGAR:* ${totalFinal} MT\n\n`;
+
+            msg += `*LOCALIZAÇÃO EXATA (GPS):*\n`;
+            msg += `• Mapa Google: ${gps}\n\n`;
+            msg += `Aguardando confirmação após envio do comprovativo.`;
+
+            const now = new Date();
+            const dateStr = `${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+            
+            window.saveAndSendOrder({
+                date: dateStr,
+                clientName: name,
+                clientPhone: phone,
+                items: cart,
+                subtotal: subtotal,
+                deliveryFee: deliveryFee,
+                total: totalFinal,
+                neighborhood: neighborhood,
+                gps: gps,
+                status: "Pendente"
+            });
+
+            window.open(`https://wa.me/258861685594?text=${encodeURIComponent(msg)}`, '_blank');
+        });
+    </script>
+</body>
+</html>
